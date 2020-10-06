@@ -149,12 +149,14 @@ open class SelectionDialog: UIView {
     }
     
     fileprivate func createContainerView() -> UIScrollView {
-        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 300, height: CGFloat(items.count * 50)))
+        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: calculateDialogWidth(), height: CGFloat(items.count * 50)))
         for (index, item) in items.enumerated() {
-            let itemButton = UIButton(frame: CGRect(x: 0, y: CGFloat(index * 50), width: 300, height: 50))
-            let itemTitleLabel = UILabel(frame: CGRect(x: itemPadding, y: 0, width: 255, height: 50))
+            let itemButton = UIButton(frame: CGRect(x: 0, y: CGFloat(index * 50), width: calculateDialogWidth(), height: 50))
+            let itemTitleLabel = UILabel(frame: CGRect(x: itemPadding, y: 0, width: calculateDialogWidth() - 50, height: 50))
             itemTitleLabel.text = item.itemTitle
             itemTitleLabel.textColor = UIColor.black
+            itemTitleLabel.numberOfLines = 2
+            itemTitleLabel.font = UIFont.systemFont(ofSize: 14)
             itemButton.addSubview(itemTitleLabel)
             itemButton.setBackgroundImage(UIImage.createImageWithColor(UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1)), for: .highlighted)
             itemButton.addTarget(item, action: #selector(SelectionDialogItem.handlerTap), for: .touchUpInside)
@@ -167,13 +169,13 @@ open class SelectionDialog: UIView {
             }
             containerView.addSubview(itemButton)
             
-            let divider = UIView(frame: CGRect(x: 0, y: CGFloat(index*50)+50, width: 300, height: 0.5))
+            let divider = UIView(frame: CGRect(x: 0, y: CGFloat(index*50)+50, width: calculateDialogWidth(), height: 0.5))
             divider.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1)
             containerView.addSubview(divider)
             containerView.frame.size.height += 50
         }
         
-        let scrollView = UIScrollView(frame: CGRect(x: 0, y: titleHeight, width: 300, height: minHeight))
+        let scrollView = UIScrollView(frame: CGRect(x: 0, y: titleHeight, width: calculateDialogWidth(), height: minHeight))
         scrollView.contentSize.height = CGFloat(items.count*50)
         scrollView.addSubview(containerView)
         
@@ -181,7 +183,7 @@ open class SelectionDialog: UIView {
     }
     
     fileprivate func createTitleLabel() -> UIView {
-        let view = UILabel(frame: CGRect(x: 0, y: 0, width: 300, height: titleHeight))
+        let view = UILabel(frame: CGRect(x: 0, y: 0, width: calculateDialogWidth(), height: titleHeight))
         
         view.text = title
         view.textAlignment = .center
@@ -197,7 +199,7 @@ open class SelectionDialog: UIView {
     
     fileprivate func createCloseButton() -> UIButton {
         let minValue = min(CGFloat(items.count) * 50.0, minHeight)
-        let button = UIButton(frame: CGRect(x: 0, y: titleHeight + minValue, width: 300, height: buttonHeight))
+        let button = UIButton(frame: CGRect(x: 0, y: titleHeight + minValue, width: calculateDialogWidth(), height: buttonHeight))
         
         button.addTarget(self,
                          action: #selector(SelectionDialog.close),
@@ -212,16 +214,20 @@ open class SelectionDialog: UIView {
         button.setTitleColor(colorHighlighted, for: .disabled)
         
         let topLayer = CALayer()
-        topLayer.frame = CGRect(x: 0, y: 0, width: 300, height: 0.5)
+        topLayer.frame = CGRect(x: 0, y: 0, width: calculateDialogWidth(), height: 0.5)
         topLayer.backgroundColor = UIColor(red: 198/255, green: 198/255, blue: 198/255, alpha: 1).cgColor
         button.layer.addSublayer(topLayer)
         
         return button
     }
     
+    fileprivate func calculateDialogWidth() -> CGFloat {
+        return UIScreen.main.bounds.width - 50
+    }
+    
     fileprivate func calculateDialogSize() -> CGSize {
         let minValue = min(CGFloat(items.count)*50.0, minHeight)
-        return CGSize(width: 300, height: minValue + titleHeight + buttonHeight)
+        return CGSize(width: calculateDialogWidth(), height: minValue + titleHeight + buttonHeight)
     }
     
     fileprivate func calculateScreenSize() -> CGSize {
